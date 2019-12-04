@@ -164,31 +164,44 @@ def find_nearest(df, skin_color):
             euclidian = tmp
     return result
 
+def find_nearest_v2(df, skin_color):
+    result = df[0][2]
+    euclidian = sqrt(pow(skin_color[0] - float(df[0][2]), 2) + pow(skin_color[1] - float(df[0][3]), 2) + pow(skin_color[2] - float(df[0][4]), 2))
+    for element in df:
+        tmp = sqrt(pow(skin_color[0] - float(element[2]), 2) + pow(skin_color[1] - float(element[3]), 2) + pow(skin_color[2] - float(element[4]), 2))
+        if (tmp < euclidian):
+            result = element
+            euclidian = tmp
+    return result
+
 if __name__ == "__main__":
     image = cv2.imread("Elise.jpg")
     image = cv2.imencode('.jpg', image)[1].tostring()
-    
     nparr = np.frombuffer(image, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     image = imutils.resize(image, width=250)
-    #plt.subplot(3, 1, 1)
-    #plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    #plt.title("Original Image")
+    plt.subplot(3, 1, 1)
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.title("Original Image")
     skin = extractSkin(image)
-    #plt.subplot(3, 1, 2)
-    #plt.imshow(cv2.cvtColor(skin, cv2.COLOR_BGR2RGB))
-    #plt.title("Thresholded  Image")
+    plt.subplot(3, 1, 2)
+    plt.imshow(cv2.cvtColor(skin, cv2.COLOR_BGR2RGB))
+    plt.title("Thresholded  Image")
     dominantColors = extractDominantColor(skin, hasThresholding=True)
     colour_bar = plotColorBar(dominantColors)
     result = dominantColors[0]['color']
-    color = pd.read_csv('color.csv')
-    nearest_color = find_nearest(color, dominantColors[0]['color'])
-    nearest_color2 = find_nearest(color, dominantColors[1]['color'])
-    #plt.subplot(3, 1, 3)
-    #plt.axis("off")
-    #plt.imshow(colour_bar)
-    #plt.title("Color Bar")
-    #plt.tight_layout()
-    #plt.show()
-    df_color = [nearest_color['title'], nearest_color2['title']]
+    color_list = [['Alabaster', '#DEBB9F', '222', '187', '159'], ['Beige', '#C59567', '197', '149', '103'], ['Cappuccino', '#935A37', '147', '90', '55'], ['Caramel', '#B68962', '182', '137', '98'], ['Deep Cool', '#67412C', '103', '65', '44'], ['Deep Espresso', '#563025', '86', '48', '37'], ['Deep Walnut', '#623522', '98', '53', '34'], ['Fair', '#DFC3AB', '223', '195', '171'], ['Golden', '#BB8758', '187', '135', '88'], ['Golden Honey', '#BF8357', '191', '131', '87'], ['Light Ivory', '#EFC6AA', '239', '198', '170'], ['Mahogany', '#A06943', '160', '105', '67'], ['Medium Olive', '#CE9971', '206', '153', '113'], ['Mocha', '#78452A', '120', '69', '42'], ['Natural', '#DBA380', '219', '163', '128'], ['Neutral Buff', '#C4885E', '196', '136', '94'], ['Neutral Tan', '#AF794D', '175', '121', '77'], ['Pale', '#F6D3AD', '246', '211', '173'], ['Soft Beige', '#CE9367', '206', '147', '103'], ['True Beige', '#DBA776', '219', '167', '118'], ['Vanilla', '#E9BB99', '233', '187', '153'], ['Walnut', '#643A21', '100', '58', '33'], ['Warm Caramel', '#A0603A', '160', '96', '58'], ['Warm Honey', '#AB7046', '171', '112', '70']]
+    nearest_color = find_nearest_v2(color_list,dominantColors[0]['color'])
+    nearest_color2 = find_nearest_v2(color_list,dominantColors[1]['color'])
+    print(nearest_color)
+    #color = pd.read_csv('color.csv')
+    #nearest_color = find_nearest(color, dominantColors[0]['color'])
+    #nearest_color2 = find_nearest(color, dominantColors[1]['color'])
+    plt.subplot(3, 1, 3)
+    plt.axis("off")
+    plt.imshow(colour_bar)
+    plt.title("Color Bar")
+    plt.tight_layout()
+    plt.show()
+    df_color = [nearest_color[0], nearest_color2[0]]
     print(df_color)
