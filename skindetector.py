@@ -154,6 +154,7 @@ def plotColorBar(colorInformation):
     return color_bar
 
 def find_nearest(df, skin_color):
+    result = df.iloc[0]
     for index, row in df.iterrows():
         tmp = sqrt(pow(skin_color[0] - row['r'], 2) + pow(skin_color[1] - row['g'], 2) + pow(skin_color[2] - row['b'], 2))
         if (index == 0):
@@ -165,25 +166,29 @@ def find_nearest(df, skin_color):
 
 if __name__ == "__main__":
     image = cv2.imread("Elise.jpg")
+    image = cv2.imencode('.jpg', image)[1].tostring()
+    
+    nparr = np.frombuffer(image, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     image = imutils.resize(image, width=250)
-    plt.subplot(3, 1, 1)
-    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    plt.title("Original Image")
+    #plt.subplot(3, 1, 1)
+    #plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    #plt.title("Original Image")
     skin = extractSkin(image)
-    plt.subplot(3, 1, 2)
-    plt.imshow(cv2.cvtColor(skin, cv2.COLOR_BGR2RGB))
-    plt.title("Thresholded  Image")
+    #plt.subplot(3, 1, 2)
+    #plt.imshow(cv2.cvtColor(skin, cv2.COLOR_BGR2RGB))
+    #plt.title("Thresholded  Image")
     dominantColors = extractDominantColor(skin, hasThresholding=True)
     colour_bar = plotColorBar(dominantColors)
     result = dominantColors[0]['color']
     color = pd.read_csv('color.csv')
     nearest_color = find_nearest(color, dominantColors[0]['color'])
-    print('Main Skin color is :')
-    print(nearest_color['title'])
-    plt.subplot(3, 1, 3)
-    plt.axis("off")
-    plt.imshow(colour_bar)
-    plt.title("Color Bar")
-    plt.tight_layout()
-    plt.show()
-    nearest_color.to_json('result.json')
+    nearest_color2 = find_nearest(color, dominantColors[1]['color'])
+    #plt.subplot(3, 1, 3)
+    #plt.axis("off")
+    #plt.imshow(colour_bar)
+    #plt.title("Color Bar")
+    #plt.tight_layout()
+    #plt.show()
+    df_color = [nearest_color['title'], nearest_color2['title']]
+    print(df_color)
